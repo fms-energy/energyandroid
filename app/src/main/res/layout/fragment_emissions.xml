@@ -13,11 +13,11 @@
         android:id="@+id/emission_graph">
 
 
-        <lecho.lib.hellocharts.view.ColumnChartView
+        <lecho.lib.hellocharts.view.LineChartView
             android:id="@+id/chart"
             android:layout_width="match_parent"
             android:layout_height="match_parent" >
-        </lecho.lib.hellocharts.view.ColumnChartView>
+        </lecho.lib.hellocharts.view.LineChartView>
     </FrameLayout>
 
     <FrameLayout

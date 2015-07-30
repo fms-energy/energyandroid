@@ -24,6 +24,9 @@ import lecho.lib.hellocharts.model.Axis;
 import lecho.lib.hellocharts.model.AxisValue;
 import lecho.lib.hellocharts.model.Column;
 import lecho.lib.hellocharts.model.ColumnChartData;
+import lecho.lib.hellocharts.model.Line;
+import lecho.lib.hellocharts.model.LineChartData;
+import lecho.lib.hellocharts.model.PointValue;
 import lecho.lib.hellocharts.model.SubcolumnValue;
 import lecho.lib.hellocharts.util.ChartUtils;
 import lecho.lib.hellocharts.view.ColumnChartView;
@@ -42,7 +45,7 @@ import lecho.lib.hellocharts.view.PreviewLineChartView;
 public class EmissionsFragment extends Fragment {
 
     private static final int SUBCOLUMNS_DATA = 1;
-
+/*
     private ColumnChartView chart;
     private ColumnChartData data;
     private boolean hasAxes = true;
@@ -50,8 +53,11 @@ public class EmissionsFragment extends Fragment {
     private boolean hasLabels = false;
     private boolean hasLabelForSelected = false;
     private int dataType = SUBCOLUMNS_DATA;
+*/
 
-
+    private LineChartView chart;
+    private LineChartData data;
+    //Deep copy of data.
 
 
     // TODO: Rename parameter arguments, choose names that match
@@ -101,9 +107,11 @@ public class EmissionsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_emissions, container, false);
-
+/*
         chart = (ColumnChartView) rootView.findViewById(R.id.chart);
         chart.setOnValueTouchListener(new ValueTouchListener());
+*/
+        chart = (LineChartView) rootView.findViewById(R.id.chart);
 
         //setHasOptionsMenu(true);
 
@@ -116,9 +124,11 @@ public class EmissionsFragment extends Fragment {
             setEmissionsData(emissionsData);
             Log.d("receiver", "OK");
         } else {
-            generateSubcolumnsData();
+            //generateSubcolumnsData();
         }
-        chart.setColumnChartData(data);
+        //chart.setColumnChartData(data);
+        chart.setLineChartData(data);
+
         return rootView;
     }
 
@@ -164,7 +174,7 @@ public class EmissionsFragment extends Fragment {
     }
 
 
-
+/*
     private void generateSubcolumnsData() {
         int numSubcolumns = 2;
         int numColumns = 8;
@@ -202,49 +212,79 @@ public class EmissionsFragment extends Fragment {
 
         chart.setColumnChartData(data);
 
-    }
+    } */
 
     private void setEmissionsData(ArrayList<EmissionDataPoint> edps) {
         int numSubcolumns = 4;
         int numColumns = edps.size();
-        Log.d("chart", "all good?");
-
+        List<PointValue> energy = new ArrayList<>();
+        List<PointValue> emissions = new ArrayList<>();
+/*
         List<Column> columns = new ArrayList<Column>();
         List<SubcolumnValue> values;
-        List<AxisValue> axisValues;
+        List<AxisValue> axisValues = new ArrayList<AxisValue>();*/
+        float minuteCount = 0;
         for (int i = 0; i < numColumns; i++) {
             EmissionDataPoint edp = edps.get(i);
-            values = new ArrayList<SubcolumnValue>();
+            //values = new ArrayList<SubcolumnValue>();
+
+            AxisValue av;
+            if (edp.dayNew == 1) { minuteCount = edp.dayStart; }
+
+            int month = edp.dateMonth;
+            int day = edp.dateDay;
+            int dateVal = month*31+day; //simple ordering of dates
+            Log.d("MC", Float.toString(minuteCount));
+            /*
+            av = new AxisValue(xVal);
+            av.setLabel("" + day +"/" + month + ": " + minuteCount);
+            axisValues.add(av);*/
+
+
             for (int j = 0; j < numSubcolumns; j++) {
                 float val;
                 int color;
+                float xVal;
+
 
 
                 if (j<2) {
                     Travel tr = edp.travel;
-                    if (j%2 == 0) { val = tr.energy;  color = ChartUtils.COLOR_BLUE; }
-                    else { val = tr.emissions; color = ChartUtils.COLOR_GREEN; }
+                    minuteCount+=tr.duration;
+                    xVal = minuteCount/2880 + dateVal;
+                    if (j%2 == 0) { val = tr.energy;  color = ChartUtils.COLOR_BLUE;
+                        energy.add(new PointValue(xVal,val)); }
+                    else { val = tr.emissions; color = ChartUtils.COLOR_GREEN;
+                        emissions.add(new PointValue(xVal,val));}
                 } else {
                     Stop st = edp.stop;
-                    if (j%2 == 0) {val = st.energy; color = ChartUtils.COLOR_BLUE;}
-                    else { val = st.emissions; color = ChartUtils.COLOR_GREEN;}
+                    minuteCount+=st.duration;
+                     xVal = minuteCount/2880 + dateVal;
+                    if (j%2 == 0) {val = st.energy; color = ChartUtils.COLOR_BLUE;
+                        energy.add(new PointValue(xVal,val));  }
+                    else { val = st.emissions; color = ChartUtils.COLOR_GREEN;
+                        emissions.add(new PointValue(xVal,val));}
                 }
-                values.add(new SubcolumnValue(val,color));
+
+                //values.add(new SubcolumnValue(val,color));
+
                 Log.d("chart", Float.toString(val));
-
+                Log.d("VALUES_X", Float.toString(xVal));
             }
-
+/*
             Column column = new Column(values);
             column.setHasLabels(hasLabels);
             column.setHasLabelsOnlyForSelected(hasLabelForSelected);
             columns.add(column);
-        }
+            */
 
+
+        }
+/*
         data = new ColumnChartData(columns);
 
         if (hasAxes) {
-            Axis axisX = new Axis().setAutoGenerated(false);
-
+            Axis axisX = new Axis(axisValues);
             Axis axisY = new Axis().setHasLines(true);
             if (hasAxesNames) {
                 axisX.setName("Date");
@@ -257,7 +297,27 @@ public class EmissionsFragment extends Fragment {
             data.setAxisYLeft(null);
         }
 
-        chart.setColumnChartData(data);
+        chart.setColumnChartData(data);*/
+
+        Line line = new Line(energy);
+        Line line2 = new Line(emissions);
+        line.setColor(ChartUtils.COLOR_GREEN);
+        line2.setColor(ChartUtils.COLOR_BLUE);
+
+       // line.setHasPoints(false);// too many values so don't draw points.
+        List<Line> lines = new ArrayList<Line>();
+        lines.add(line);
+        lines.add(line2);
+/*
+        Line line2 = new Line(values2);
+        line2.setColor(ChartUtils.COLOR_BLUE);
+        line2.setHasPoints(false);
+        lines.add(line2);
+*/
+        data = new LineChartData(lines);
+        data.setAxisXBottom(new Axis());
+        data.setAxisYLeft(new Axis().setHasLines(true));
+
 
     }
 
@@ -275,4 +335,7 @@ public class EmissionsFragment extends Fragment {
         }
 
     }
+
+
+
 }

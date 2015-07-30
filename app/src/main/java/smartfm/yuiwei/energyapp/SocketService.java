@@ -161,7 +161,7 @@ public class SocketService extends Service {
             for (int i=0; i<data.length(); i++) {
                 try {
                     JSONObject obj = data.getJSONObject(i);
-                    if (obj.getString("userID").equals("472") && obj.getInt("dateMonth")==4) {
+                    if (obj.getString("userID").equals("387") && obj.getInt("dateMonth")==4) {
 
                         EmissionDataPoint edp = new EmissionDataPoint();
                         edp.userID = obj.getString("userID");
