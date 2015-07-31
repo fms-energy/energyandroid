@@ -161,7 +161,7 @@ public class SocketService extends Service {
             for (int i=0; i<data.length(); i++) {
                 try {
                     JSONObject obj = data.getJSONObject(i);
-                    if (obj.getString("userID").equals("946") ) {
+                    if (obj.getString("userID").equals("472") ) {
 
                         //&& obj.getInt("dateMonth")==4
 
@@ -198,6 +198,7 @@ public class SocketService extends Service {
                         Log.d("JSON1", edp.toString());
                         dataPoints.add(edp);
                     }
+
                 } catch (Exception e) { Log.d("JSON99", "EXCEPTION????"); }
             }
             Bundle emissionsData = new Bundle();

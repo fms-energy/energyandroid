@@ -69,9 +69,13 @@ public class EmissionsFragment extends Fragment {
     private ColumnChartData columnData;
 
     private ArrayList<ArrayList<PointValue>> emissionsOverMonth;
+    private ArrayList<ArrayList<PointValue>> travEmissionsOverMonth;
+    private ArrayList<ArrayList<PointValue>> stopEmissionsOverMonth;
     private ArrayList<Float> monthlyEmissions;
     private ArrayList<ArrayList<PointValue>> energyOverMonth;
     private ArrayList<Float> monthlyEnergy;
+    ArrayList<EmissionDataPoint> emissionsData;
+
 
 
 
@@ -115,6 +119,24 @@ public class EmissionsFragment extends Fragment {
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
+            emissionsData = getArguments().getParcelableArrayList("emissionsData");
+            emissionsOverMonth = new ArrayList<>(32);
+            travEmissionsOverMonth = new ArrayList<>(32);
+            stopEmissionsOverMonth = new ArrayList<>(32);
+
+            energyOverMonth = new ArrayList<>(32);
+            monthlyEmissions = new ArrayList<>(32);
+            monthlyEnergy = new ArrayList<>(32);
+            float zero = 0;
+
+            for(int i=0;i<31;i++) {
+                emissionsOverMonth.add(blankValueList(1));
+                travEmissionsOverMonth.add(blankValueList(1));
+                stopEmissionsOverMonth.add(blankValueList(1));
+                energyOverMonth.add(blankValueList(1));
+                monthlyEmissions.add(zero);
+                monthlyEnergy.add(zero);
+            }
         }
     }
 
@@ -123,53 +145,13 @@ public class EmissionsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_emissions, container, false);
-        emissionsOverMonth = new ArrayList<>(31);
-        energyOverMonth = new ArrayList<>(31);
-        monthlyEmissions = new ArrayList<>(31);
-        monthlyEnergy = new ArrayList<>(31);
-        float zero = 0;
-
-        for(int i=0;i<31;i++) {
-            emissionsOverMonth.add(blankValueList(1));
-            energyOverMonth.add(blankValueList(1));
-            monthlyEmissions.add(zero);
-            monthlyEnergy.add(zero);
-        }
-/*
-        chart = (ColumnChartView) rootView.findViewById(R.id.chart);
-        chart.setOnValueTouchListener(new ValueTouchListener());
-
-        chart = (LineChartView) rootView.findViewById(R.id.chart);
-
-        //setHasOptionsMenu(true);
-
-
-        // Generate data for previewed chart and copy of that data for preview chart.
-
-        if (getArguments() != null) {
-            ArrayList<EmissionDataPoint> emissionsData = getArguments().getParcelableArrayList("emissionsData");
-
-            setEmissionsData(emissionsData);
-            Log.d("receiver", "OK");
-        } else {
-            //generateSubcolumnsData();
-        }
-        //chart.setColumnChartData(data);
-        chart.setLineChartData(data);
-*/
-
 
         chartTop = (LineChartView) rootView.findViewById(R.id.chart_top);
-
-        // Generate and set data for line chart
-
-        // *** BOTTOM COLUMN CHART ***
-
         chartBottom = (ColumnChartView) rootView.findViewById(R.id.chart_bottom);
 
 
         if (getArguments() != null) {
-            ArrayList<EmissionDataPoint> emissionsData = getArguments().getParcelableArrayList("emissionsData");
+            ArrayList<EmissionDataPoint> data = new ArrayList<>();
 
             setEmissionsData(emissionsData);
             generateInitialLineData();
@@ -206,197 +188,28 @@ public class EmissionsFragment extends Fragment {
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-
-
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         public void onEmissionsFragmentInteraction(Uri uri);
     }
 
-
-/*
-    private void generateSubcolumnsData() {
-        int numSubcolumns = 2;
-        int numColumns = 8;
-        // Column can have many subcolumns, here I use 4 subcolumn in each of 8 columns.
-        List<Column> columns = new ArrayList<Column>();
-        List<SubcolumnValue> values;
-        for (int i = 0; i < numColumns; ++i) {
-
-            values = new ArrayList<SubcolumnValue>();
-            for (int j = 0; j < numSubcolumns; ++j) {
-                values.add(new SubcolumnValue((float) Math.random() * 50f + 5, ChartUtils.pickColor()));
-            }
-
-            Column column = new Column(values);
-            column.setHasLabels(hasLabels);
-            column.setHasLabelsOnlyForSelected(hasLabelForSelected);
-            columns.add(column);
-        }
-
-        data = new ColumnChartData(columns);
-
-        if (hasAxes) {
-            Axis axisX = new Axis();
-            Axis axisY = new Axis().setHasLines(true);
-            if (hasAxesNames) {
-                axisX.setName("Axis X");
-                axisY.setName("Axis Y");
-            }
-            data.setAxisXBottom(axisX);
-            data.setAxisYLeft(axisY);
-        } else {
-            data.setAxisXBottom(null);
-            data.setAxisYLeft(null);
-        }
-
-        chart.setColumnChartData(data);
-
-    }
-    //LINE AND COLUMN CHART
-    private void setEmissionsData(ArrayList<EmissionDataPoint> edps) {
-        int numSubcolumns = 4;
-        int numColumns = edps.size();
-        List<PointValue> energy = new ArrayList<>();
-        List<PointValue> emissions = new ArrayList<>();
-
-        List<Column> columns = new ArrayList<Column>();
-        List<SubcolumnValue> values;
-        List<AxisValue> axisValues = new ArrayList<AxisValue>();
-        float minuteCount = 0;
-        for (int i = 0; i < numColumns; i++) {
-            EmissionDataPoint edp = edps.get(i);
-            //values = new ArrayList<SubcolumnValue>();
-
-            AxisValue av;
-            if (edp.dayNew == 1) { minuteCount = edp.dayStart; }
-
-            int month = edp.dateMonth;
-            int day = edp.dateDay;
-            int dateVal = month*31+day; //simple ordering of dates
-            Log.d("MC", Float.toString(minuteCount));
-
-            av = new AxisValue(xVal);
-            av.setLabel("" + day +"/" + month + ": " + minuteCount);
-            axisValues.add(av);
-
-
-            for (int j = 0; j < numSubcolumns; j++) {
-                float val;
-                int color;
-                float xVal;
-
-
-
-                if (j<2) {
-                    Travel tr = edp.travel;
-                    minuteCount+=tr.duration;
-                    xVal = minuteCount/2880 + dateVal;
-                    if (j%2 == 0) { val = tr.energy;  color = ChartUtils.COLOR_BLUE;
-                        energy.add(new PointValue(xVal,val)); }
-                    else { val = tr.emissions; color = ChartUtils.COLOR_GREEN;
-                        emissions.add(new PointValue(xVal,val));}
-                } else {
-                    Stop st = edp.stop;
-                    minuteCount+=st.duration;
-                     xVal = minuteCount/2880 + dateVal;
-                    if (j%2 == 0) {val = st.energy; color = ChartUtils.COLOR_BLUE;
-                        energy.add(new PointValue(xVal,val));  }
-                    else { val = st.emissions; color = ChartUtils.COLOR_GREEN;
-                        emissions.add(new PointValue(xVal,val));}
-                }
-
-                //values.add(new SubcolumnValue(val,color));
-
-                Log.d("chart", Float.toString(val));
-                Log.d("VALUES_X", Float.toString(xVal));
-            }
-
-            Column column = new Column(values);
-            column.setHasLabels(hasLabels);
-            column.setHasLabelsOnlyForSelected(hasLabelForSelected);
-            columns.add(column);
-
-
-
-        }
-
-        data = new ColumnChartData(columns);
-
-        if (hasAxes) {
-            Axis axisX = new Axis(axisValues);
-            Axis axisY = new Axis().setHasLines(true);
-            if (hasAxesNames) {
-                axisX.setName("Date");
-                axisY.setName("Energy/Emission");
-            }
-            data.setAxisXBottom(axisX);
-            data.setAxisYLeft(axisY);
-        } else {
-            data.setAxisXBottom(null);
-            data.setAxisYLeft(null);
-        }
-
-        chart.setColumnChartData(data);
-
-        Line line = new Line(energy);
-        Line line2 = new Line(emissions);
-        line.setColor(ChartUtils.COLOR_GREEN);
-        line2.setColor(ChartUtils.COLOR_BLUE);
-
-       // line.setHasPoints(false);// too many values so don't draw points.
-        List<Line> lines = new ArrayList<Line>();
-        lines.add(line);
-        lines.add(line2);
-
-        Line line2 = new Line(values2);
-        line2.setColor(ChartUtils.COLOR_BLUE);
-        line2.setHasPoints(false);
-        lines.add(line2);
-
-        data = new LineChartData(lines);
-        data.setAxisXBottom(new Axis());
-        data.setAxisYLeft(new Axis().setHasLines(true));
-
-
-    }
-    private class ValueTouchListener implements ColumnChartOnValueSelectListener {
-
-        @Override
-        public void onValueSelected(int columnIndex, int subcolumnIndex, SubcolumnValue value) {
-            Toast.makeText(getActivity(), "Selected: " + value, Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        public void onValueDeselected() {
-            // TODO Auto-generated method stub
-
-        }
-
-    }
-*/
-
     private void setEmissionsData(ArrayList<EmissionDataPoint> edps) {
         int ctr=0; float minuteCount=0; float dailyEmissions=0; float dailyEnergy=0;
         ArrayList<PointValue> emissionsOverDay = new ArrayList<>();
+        ArrayList<PointValue> travEmissionsOverDay = new ArrayList<>();
+        ArrayList<PointValue> stopEmissionsOverDay = new ArrayList<>();
         ArrayList<PointValue> energyOverDay = new ArrayList<>();
 
         while(ctr!=edps.size()) {
             EmissionDataPoint edp = edps.get(ctr);
             if(edp.dayNew==1) {
                 emissionsOverMonth.set(edp.dateDay, emissionsOverDay);
+                travEmissionsOverMonth.set(edp.dateDay, travEmissionsOverDay);
+                stopEmissionsOverMonth.set(edp.dateDay, stopEmissionsOverDay);
                 monthlyEmissions.set(edp.dateDay,dailyEmissions);
                 emissionsOverDay = new ArrayList<PointValue>();
+                travEmissionsOverDay = new ArrayList<PointValue>();
+                stopEmissionsOverDay = new ArrayList<PointValue>();
 
                 energyOverMonth.set(edp.dateDay, energyOverDay);
                 monthlyEnergy.set(edp.dateDay,dailyEnergy);
@@ -409,6 +222,7 @@ public class EmissionsFragment extends Fragment {
             float travelEn = edp.travel.energy;
             dailyEmissions+=travelEm;
             dailyEnergy+=travelEn;
+            travEmissionsOverDay.add(new PointValue(minuteCount,dailyEmissions));
             emissionsOverDay.add(new PointValue(minuteCount,dailyEmissions));
             energyOverDay.add(new PointValue(minuteCount,dailyEnergy));
 
@@ -417,6 +231,7 @@ public class EmissionsFragment extends Fragment {
             float stopEn = edp.stop.energy;
             dailyEmissions+=stopEm;
             dailyEnergy+=stopEn;
+            stopEmissionsOverDay.add(new PointValue(minuteCount,dailyEmissions));
             emissionsOverDay.add(new PointValue(minuteCount,dailyEmissions));
             energyOverDay.add(new PointValue(minuteCount,dailyEnergy));
 
@@ -424,6 +239,8 @@ public class EmissionsFragment extends Fragment {
             ctr+=1;
         }
         Log.d("VALUES", monthlyEmissions.toString());
+        Log.d("VALUES", monthlyEnergy.toString());
+
     }
 
 
@@ -435,25 +252,29 @@ public class EmissionsFragment extends Fragment {
         List<AxisValue> axisValues = new ArrayList<AxisValue>();
         List<Column> columns = new ArrayList<Column>();
         List<SubcolumnValue> values;
-        for (int i = 0; i < numColumns; ++i) {
+        List<SubcolumnValue> values2;
+        for (int i = 0; i < numColumns; i++) {
 
             values = new ArrayList<SubcolumnValue>();
-            for (int j = 0; j < numSubcolumns; ++j) {
+            values2 = new ArrayList<SubcolumnValue>();
+            for (int j = 0; j < numSubcolumns; j++) {
                // values.add(new SubcolumnValue((float) Math.random() * 50f + 5, ChartUtils.pickColor()));
-                values.add(new SubcolumnValue(monthlyEmissions.get(i),ChartUtils.pickColor()));
-                Log.d("VALUES", Float.toString(monthlyEmissions.get(i)));
+                if (j==0) {
+                    values.add(new SubcolumnValue(monthlyEmissions.get(i), ChartUtils.COLOR_BLUE));
+                } else {
+                    values2.add(new SubcolumnValue(monthlyEnergy.get(i), ChartUtils.COLOR_VIOLET));
+                }
             }
 
             axisValues.add(new AxisValue(i).setLabel(Integer.toString(i)));
 
             columns.add(new Column(values).setHasLabelsOnlyForSelected(true));
+            //columns.add(new Column(values2).setHasLabelsOnlyForSelected(true));
         }
 
         columnData = new ColumnChartData(columns);
-
         columnData.setAxisXBottom(new Axis(axisValues).setHasLines(true));
         columnData.setAxisYLeft(new Axis().setHasLines(true).setMaxLabelChars(2));
-
         chartBottom.setColumnChartData(columnData);
 
         // Set value touch listener that will trigger changes for chartTop.
@@ -463,19 +284,6 @@ public class EmissionsFragment extends Fragment {
         chartBottom.setValueSelectionEnabled(true);
 
         chartBottom.setZoomType(ZoomType.HORIZONTAL);
-
-        // chartBottom.setOnClickListener(new View.OnClickListener() {
-        //
-        // @Override
-        // public void onClick(View v) {
-        // SelectedValue sv = chartBottom.getSelectedValue();
-        // if (!sv.isSet()) {
-        // generateInitialLineData();
-        // }
-        //
-        // }
-        // });
-
     }
 
     /**
@@ -487,21 +295,26 @@ public class EmissionsFragment extends Fragment {
 
         List<AxisValue> axisValues = new ArrayList<AxisValue>();
         List<PointValue> values = new ArrayList<PointValue>();
+        List<PointValue> values2 = new ArrayList<PointValue>();
         for (int i = 0; i < numValues; ++i) {
             values.add(new PointValue(i, 0));
-            axisValues.add(new AxisValue(i).setLabel(Integer.toString(i)));
+            values2.add(new PointValue(i, 0));
+
+            axisValues.add(new AxisValue(values.get(i).getX()).setLabel(Integer.toString(i)));
         }
 
         Line line = new Line(values);
-        line.setColor(ChartUtils.COLOR_GREEN).setCubic(false);
+        //Line line2 = new Line(values2);
+        line.setColor(ChartUtils.COLOR_BLUE).setCubic(false);
+        //line2.setColor(ChartUtils.COLOR_VIOLET).setCubic(false);
 
         List<Line> lines = new ArrayList<Line>();
         lines.add(line);
+        //lines.add(line2);
 
         lineData = new LineChartData(lines);
         lineData.setAxisXBottom(new Axis(axisValues).setHasLines(true));
         lineData.setAxisYLeft(new Axis().setHasLines(true).setMaxLabelChars(3));
-
         chartTop.setLineChartData(lineData);
 
         // For build-up animation you have to disable viewport recalculation.
@@ -515,42 +328,44 @@ public class EmissionsFragment extends Fragment {
         chartTop.setZoomType(ZoomType.HORIZONTAL);
     }
 
-    private void generateLineData(int color, float range, int colIndex) {
+    private void generateLineData(int color, float range, int colIndex, int subcolIndex) {
         // Cancel last animation if not finished.
 
         chartTop.cancelDataAnimation();
 
         ArrayList<PointValue> emissionsOverDay = emissionsOverMonth.get(colIndex);
-        // Modify data targets
-        /*
-        Line line = lineData.getLines().get(0);// For this example there is always only one line.
-        line.setColor(color);
-
-        line.setValues(emissionsOverDay);
-        for (int i=0; i<emissionsOverDay.size();i++) {
-            // Change target only for Y value.
-            PointValue value = line.getValues().get(i);
-            value.setTarget(emissionsOverDay.get(i).getX(),
-                    emissionsOverDay.get(i).getY());
+        ArrayList<PointValue> energyOverDay = energyOverMonth.get(colIndex);
+        ArrayList<PointValue> valuesUsed;
+        ArrayList<PointValue> valuesUsed2;
+        if(subcolIndex==0) {
+            valuesUsed = emissionsOverDay;
+            valuesUsed2 = energyOverDay;
+        } else {
+            valuesUsed = energyOverDay;
+            valuesUsed2 = energyOverDay;
         }
-
-        // Start new data animation with 300ms duration;
-        chartTop.startDataAnimation(300);*/
-        Line line = new Line(emissionsOverDay);
+        // Modify data targets
+        Line line = new Line(valuesUsed);
         List axisValues = new ArrayList<AxisValue>();
         line.setColor(color).setCubic(false).setHasPoints(false);
+        Line line2 = new Line(valuesUsed2);
+        line2.setColor(ChartUtils.COLOR_GREEN).setCubic(false).setHasPoints(false);
 
         List<Line> lines = new ArrayList<Line>();
-        for (int i=0;i<emissionsOverDay.size();i++) {
-            axisValues.add(new AxisValue(emissionsOverDay.get(i).getX()).setLabel(Integer.toString((int)emissionsOverDay.get(i).getX())));
+        for (int i=0;i<valuesUsed.size();i++) {
+            axisValues.add(new AxisValue(valuesUsed.get(i).getX()).setLabel(Integer.toString(i)));
         }
         lines.add(line);
+        lines.add(line2);
 
         lineData = new LineChartData(lines);
         lineData.setAxisXBottom(new Axis(axisValues).setHasLines(true));
         lineData.setAxisYLeft(new Axis().setHasLines(true).setMaxLabelChars(3));
 
         chartTop.setLineChartData(lineData);
+        // Start new data animation with 300ms duration;
+       // chartTop.startDataAnimation(300);
+
 
     }
 
@@ -558,13 +373,13 @@ public class EmissionsFragment extends Fragment {
 
         @Override
         public void onValueSelected(int columnIndex, int subcolumnIndex, SubcolumnValue value) {
-            generateLineData(value.getColor(), 100, columnIndex);
+            generateLineData(value.getColor(), 100, columnIndex, subcolumnIndex);
         }
 
         @Override
         public void onValueDeselected() {
 
-            generateLineData(ChartUtils.COLOR_GREEN, 0, 0);
+            generateLineData(ChartUtils.COLOR_GREEN, 0, 0, 0);
 
         }
     }

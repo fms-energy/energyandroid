@@ -100,7 +100,7 @@ public class MainActivity extends ActionBarActivity
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mSocketService.unbindService(mServiceConnection);
+       // mSocketService.unbindService(mServiceConnection);
       //  mSocket.off("new message", );
     }
 

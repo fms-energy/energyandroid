@@ -67,7 +67,7 @@ public class ConnectSensorActivity extends ListActivity {
         setListAdapter(adapter);
 
         mHandler = new Handler();
-        Intent intent = getIntent();
+        Intent intent = this.getIntent();
         String value = intent.getStringExtra("key");
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Toast.makeText(this, "BLE Not Supported",
@@ -216,7 +216,6 @@ public class ConnectSensorActivity extends ListActivity {
 
 
     private final BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
-        final TextView tv3 = (TextView)findViewById(R.id.tv3);
 
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
@@ -224,18 +223,18 @@ public class ConnectSensorActivity extends ListActivity {
             switch (newState) {
                 case BluetoothProfile.STATE_CONNECTED:
                     Log.i("gattCallback", "STATE_CONNECTED");
-                    tv3.setText("connected");
+                  //  tv4.setText("connected");
 
                     gatt.discoverServices();
                     break;
                 case BluetoothProfile.STATE_DISCONNECTED:
                     Log.e("gattCallback", "STATE_DISCONNECTED");
-                    tv3.setText("disconnected");
+                  //  tv4.setText("disconnected");
 
                     scanLeDevice(true);
                     break;
                 default:
-                    tv3.setText("???");
+                  //  tv4.setText("???");
 
                     Log.e("gattCallback", "STATE_OTHER");
             }
@@ -284,7 +283,6 @@ public class ConnectSensorActivity extends ListActivity {
         public void onCharacteristicRead(BluetoothGatt gatt,
                                          BluetoothGattCharacteristic
                                                  characteristic, int status) {
-            final TextView tv4 = (TextView)findViewById(R.id.tv4);
             Log.i("onCharacteristicRead", characteristic.getUuid().toString());
             if (characteristic.getUuid().toString().equals(SensorTagGatt.UUID_IRT_DATA.toString())) {
 
@@ -293,9 +291,6 @@ public class ConnectSensorActivity extends ListActivity {
                 double ambient = extractAmbientTemperature(value);
                 double target = extractTargetTemperature(value, ambient);
                 double targetNewSensor = extractTargetTemperatureTMP007(value);
-                tv4.setText(Double.toString(ambient));
-                tv4.append(Double.toString(target));
-                tv4.append(Double.toString(targetNewSensor));
 
                 Log.d("VALUES", Double.toString(ambient));
                 Log.d("VALUES", Double.toString(target));
