@@ -236,8 +236,6 @@ public class TemperatureFragment extends Fragment {
         List<PointValue> values = new ArrayList<PointValue>();
        // List<PointValue> values2 = new ArrayList<PointValue>();
         for (int i = 0; i < numData; ++i) {
-            Log.d("VALUES", "Time: " + Integer.toString(times[i]));
-            Log.d("VALUES", "Temp: " + Double.toString(temperatures[i]));
 
             values.add(new PointValue(times[i], (float) temperatures[i]));
             /*

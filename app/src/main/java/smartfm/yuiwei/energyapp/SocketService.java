@@ -41,7 +41,7 @@ public class SocketService extends Service {
         super.onCreate();
         Log.d(LOG_TAG, "in onCreate");
         try {
-            mSocket = IO.socket("http://10.0.98.91:3000");
+            mSocket = IO.socket("http://10.0.98.176:3000");
         } catch (URISyntaxException e) {}
         mSocket.connect();
 
@@ -161,7 +161,9 @@ public class SocketService extends Service {
             for (int i=0; i<data.length(); i++) {
                 try {
                     JSONObject obj = data.getJSONObject(i);
-                    if (obj.getString("userID").equals("387") && obj.getInt("dateMonth")==4) {
+                    if (obj.getString("userID").equals("946") ) {
+
+                        //&& obj.getInt("dateMonth")==4
 
                         EmissionDataPoint edp = new EmissionDataPoint();
                         edp.userID = obj.getString("userID");
