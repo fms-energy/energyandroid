@@ -41,7 +41,7 @@ public class SocketService extends Service {
         super.onCreate();
         Log.d(LOG_TAG, "in onCreate");
         try {
-            mSocket = IO.socket("http://10.0.98.176:3000");
+            mSocket = IO.socket("http://10.0.98.23:3000");
         } catch (URISyntaxException e) {}
         mSocket.connect();
 
@@ -199,7 +199,7 @@ public class SocketService extends Service {
                         dataPoints.add(edp);
                     }
 
-                } catch (Exception e) { Log.d("JSON99", "EXCEPTION????"); }
+                } catch (Exception e) { Log.d("JSON", "EXCEPTION????"); }
             }
             Bundle emissionsData = new Bundle();
             emissionsData.putParcelableArrayList("emissionsData", dataPoints);

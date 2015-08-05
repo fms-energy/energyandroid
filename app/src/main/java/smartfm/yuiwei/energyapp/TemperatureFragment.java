@@ -68,12 +68,7 @@ public class TemperatureFragment extends Fragment {
     int[] times;
     int numData;
 
-    Bundle temperatureData1;
-    float latitude1;
-    float longitude1;
-    double[] temperatures1;
-    int[] times1;
-    int numData1;
+
 
     /**
      * Use this factory method to create a new instance of
@@ -128,11 +123,8 @@ public class TemperatureFragment extends Fragment {
             temperatures = temperatureData.getDoubleArray("temperatureArr");
             times = temperatureData.getIntArray("timeArr");
             numData = temperatureData.getInt("numData");
-            Log.d("ARRAY", Arrays.toString(temperatures));
-            Log.d("ARRAY", Arrays.toString(times));
             getForecastData();
 
-            Log.d("receiver", "OK");
         } else {
             generateDefaultData();
         }
