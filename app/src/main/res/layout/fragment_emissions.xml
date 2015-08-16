@@ -62,4 +62,5 @@
         android:layout_weight="1" >
     </lecho.lib.hellocharts.view.ColumnChartView>
 
+
 </LinearLayout>

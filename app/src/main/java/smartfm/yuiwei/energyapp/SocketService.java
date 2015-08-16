@@ -41,7 +41,7 @@ public class SocketService extends Service {
         super.onCreate();
         Log.d(LOG_TAG, "in onCreate");
         try {
-            mSocket = IO.socket("http://10.0.98.23:3000");
+            mSocket = IO.socket("http://192.168.0.106:3000");
         } catch (URISyntaxException e) {}
         mSocket.connect();
 
@@ -148,8 +148,9 @@ public class SocketService extends Service {
 
 
 
-    public void requestEmissions() {
-        mSocket.emit("emissions", "nothing for now");
+    public void requestEmissions(double userIndex) {
+
+        mSocket.emit("emissions", userIndex);
         Log.d("JSON0", "requested");
     }
     Emitter.Listener onEmissionsMsg= new Emitter.Listener() {
@@ -158,11 +159,10 @@ public class SocketService extends Service {
             JSONArray data = (JSONArray) args[0];
             ArrayList<EmissionDataPoint> dataPoints = new ArrayList<>();
             boolean flag = false;
+            String currentID = "";
             for (int i=0; i<data.length(); i++) {
                 try {
                     JSONObject obj = data.getJSONObject(i);
-                    if (obj.getString("userID").equals("472") ) {
-
                         //&& obj.getInt("dateMonth")==4
 
                         EmissionDataPoint edp = new EmissionDataPoint();
@@ -197,7 +197,7 @@ public class SocketService extends Service {
 
                         Log.d("JSON1", edp.toString());
                         dataPoints.add(edp);
-                    }
+
 
                 } catch (Exception e) { Log.d("JSON", "EXCEPTION????"); }
             }

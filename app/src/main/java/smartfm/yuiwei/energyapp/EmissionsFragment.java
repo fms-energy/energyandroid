@@ -12,7 +12,10 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ScrollView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -44,7 +47,7 @@ import lecho.lib.hellocharts.view.PreviewLineChartView;
  * Use the {@link EmissionsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class EmissionsFragment extends Fragment {
+public class EmissionsFragment extends Fragment implements AdapterView.OnItemSelectedListener {
 
     private static final int SUBCOLUMNS_DATA = 1;
 /*
@@ -129,7 +132,7 @@ public class EmissionsFragment extends Fragment {
             monthlyEnergy = new ArrayList<>(32);
             float zero = 0;
 
-            for(int i=0;i<31;i++) {
+            for (int i = 0; i < 32; i++) {
                 emissionsOverMonth.add(blankValueList(1));
                 travEmissionsOverMonth.add(blankValueList(1));
                 stopEmissionsOverMonth.add(blankValueList(1));
@@ -159,7 +162,6 @@ public class EmissionsFragment extends Fragment {
         } else {
             Log.d("HELP", "help");
         }
-
 
         return rootView;
     }
@@ -194,6 +196,7 @@ public class EmissionsFragment extends Fragment {
     }
 
     private void setEmissionsData(ArrayList<EmissionDataPoint> edps) {
+
         int ctr=0; float minuteCount=0; float dailyEmissions=0; float dailyEnergy=0;
         ArrayList<PointValue> emissionsOverDay = new ArrayList<>();
         ArrayList<PointValue> travEmissionsOverDay = new ArrayList<>();
@@ -202,24 +205,14 @@ public class EmissionsFragment extends Fragment {
 
         while(ctr!=edps.size()) {
             EmissionDataPoint edp = edps.get(ctr);
-            if(edp.dayNew==1) {
-                emissionsOverMonth.set(edp.dateDay, emissionsOverDay);
-                travEmissionsOverMonth.set(edp.dateDay, travEmissionsOverDay);
-                stopEmissionsOverMonth.set(edp.dateDay, stopEmissionsOverDay);
-                monthlyEmissions.set(edp.dateDay,dailyEmissions);
-                emissionsOverDay = new ArrayList<PointValue>();
-                travEmissionsOverDay = new ArrayList<PointValue>();
-                stopEmissionsOverDay = new ArrayList<PointValue>();
 
-                energyOverMonth.set(edp.dateDay, energyOverDay);
-                monthlyEnergy.set(edp.dateDay,dailyEnergy);
-                energyOverDay = new ArrayList<PointValue>();
-
-                minuteCount=edp.dayStart; dailyEmissions=0; dailyEnergy=0;
-            }
             minuteCount+=edp.travel.duration;
             float travelEm = edp.travel.emissions;
+            Log.d("VALUES/travelEM", Float.toString(travelEm));
+
             float travelEn = edp.travel.energy;
+            Log.d("VALUES/travelEM", Float.toString(travelEn));
+
             dailyEmissions+=travelEm;
             dailyEnergy+=travelEn;
             travEmissionsOverDay.add(new PointValue(minuteCount,dailyEmissions));
@@ -234,8 +227,24 @@ public class EmissionsFragment extends Fragment {
             stopEmissionsOverDay.add(new PointValue(minuteCount,dailyEmissions));
             emissionsOverDay.add(new PointValue(minuteCount,dailyEmissions));
             energyOverDay.add(new PointValue(minuteCount,dailyEnergy));
+            if(edp.dayNew==1) {
+                Log.d("VALUES/overday", emissionsOverDay.toString());
+                Log.d("VALUES/overday", Double.toString(dailyEmissions));
 
+                emissionsOverMonth.set(edp.dateDay, emissionsOverDay);
+                travEmissionsOverMonth.set(edp.dateDay, travEmissionsOverDay);
+                stopEmissionsOverMonth.set(edp.dateDay, stopEmissionsOverDay);
+                monthlyEmissions.set(edp.dateDay,dailyEmissions);
+                emissionsOverDay = new ArrayList<PointValue>();
+                travEmissionsOverDay = new ArrayList<PointValue>();
+                stopEmissionsOverDay = new ArrayList<PointValue>();
 
+                energyOverMonth.set(edp.dateDay, energyOverDay);
+                monthlyEnergy.set(edp.dateDay,dailyEnergy);
+                energyOverDay = new ArrayList<PointValue>();
+
+                minuteCount=edp.dayStart; dailyEmissions=0; dailyEnergy=0;
+            }
             ctr+=1;
         }
         Log.d("VALUES", monthlyEmissions.toString());
@@ -339,24 +348,19 @@ public class EmissionsFragment extends Fragment {
         ArrayList<PointValue> valuesUsed2;
         if(subcolIndex==0) {
             valuesUsed = emissionsOverDay;
-            valuesUsed2 = energyOverDay;
         } else {
             valuesUsed = energyOverDay;
-            valuesUsed2 = energyOverDay;
         }
         // Modify data targets
         Line line = new Line(valuesUsed);
         List axisValues = new ArrayList<AxisValue>();
         line.setColor(color).setCubic(false).setHasPoints(false);
-        Line line2 = new Line(valuesUsed2);
-        line2.setColor(ChartUtils.COLOR_GREEN).setCubic(false).setHasPoints(false);
 
         List<Line> lines = new ArrayList<Line>();
         for (int i=0;i<valuesUsed.size();i++) {
             axisValues.add(new AxisValue(valuesUsed.get(i).getX()).setLabel(Integer.toString(i)));
         }
         lines.add(line);
-        lines.add(line2);
 
         lineData = new LineChartData(lines);
         lineData.setAxisXBottom(new Axis(axisValues).setHasLines(true));
@@ -393,5 +397,13 @@ public class EmissionsFragment extends Fragment {
         return dummy;
     }
 
+    public void onItemSelected(AdapterView<?> parent, View view,
+                               int pos, long id) {
+        // An item was selected. You can retrieve the selected item using
+        // parent.getItemAtPosition(pos)
+    }
 
+    public void onNothingSelected(AdapterView<?> parent) {
+        // Another interface callback
+    }
 }

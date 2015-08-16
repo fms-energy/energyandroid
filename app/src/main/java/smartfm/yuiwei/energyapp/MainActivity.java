@@ -1,4 +1,5 @@
 package smartfm.yuiwei.energyapp;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import android.bluetooth.BluetoothAdapter;
@@ -232,7 +233,7 @@ public class MainActivity extends ActionBarActivity
     }
 
     public void viewEmissions(View view) {
-        mSocketService.requestEmissions();
+        mSocketService.requestEmissions(Math.floor(Math.random()*271));
         /*
         Intent myIntent = new Intent(MainActivity.this, EmissionsActivity.class);
         myIntent.putExtra("key", ""); //Optional parameters
@@ -246,6 +247,10 @@ public class MainActivity extends ActionBarActivity
 
             try {
                 emissions = intent.getBundleExtra("emissionsData");
+                ArrayList<EmissionDataPoint> edps = emissions.getParcelableArrayList("emissionsData");
+                String user = edps.get(0).userID;
+                TextView tv1 = (TextView) findViewById(R.id.tv1);
+                tv1.setText("Viewing data for user " + user);
                 EmissionsFragment fragobj = new EmissionsFragment();
                 fragobj.setArguments(emissions);
                 getFragmentManager().beginTransaction().replace(R.id.container, fragobj).commit();
